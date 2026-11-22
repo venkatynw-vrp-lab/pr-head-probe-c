@@ -1,0 +1,12 @@
+name: events
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, closed, ready_for_review, converted_to_draft]
+permissions: {}
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: payload
+        run: |
+          jq -c '{action, changes, number: .pull_request.number, state: .pull_request.state, draft: .pull_request.draft, base: .pull_request.base.ref, head: (.pull_request.head | {label, ref, sha, user: .user.login, repo: (.repo | if . == null then null else {full_name, fork, id, clone_url} end)})}' "$GITHUB_EVENT_PATH" | sed 's/^/EVENT /'
